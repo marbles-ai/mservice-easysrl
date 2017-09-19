@@ -1,0 +1,39 @@
+plugins {
+	id "us.kirchmeier.capsule" version "1.0.2"
+}
+
+apply plugin: 'us.kirchmeier.capsule'
+
+task standaloneJar(type: FatCapsule) {
+    applicationClass 'edu.uw.easysrl.main.EasySRL'
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'EasySRL',
+                   'Implementation-Version': version
+    }
+}
+
+dependencies {
+    compile 'com.google.guava:guava:19.0'
+    compile fileTree(dir: 'lib/', include: ['*.jar'])
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['resources']
+            include 'log4j.properties'
+        }
+    }
+}
+
+// Ensure our task is called after build
+build.finalizedBy(standaloneJar)
+
+
+
