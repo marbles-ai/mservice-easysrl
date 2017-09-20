@@ -1,0 +1,26 @@
+#!/bin/bash
+
+source $(dirname $0)/../scripts/common_source.sh
+
+ESRLPATH="$PROJROOT/easysrl"
+PIDFILE=$1
+LOGFILE=$2
+shift
+shift
+VERSION="1.0-SNAPSHOT"
+
+[ -e $ESRLPATH/build/libs/easysrl-${VERSION}-capsule.jar ] || die "$ESRLPATH/build/libs/easysrl-$VERSION-capsule.jar missing, run gradle build"
+[ -e $ESRLPATH/model/categories ] || die "$ESRLPATH/model missing, run gradle untar"
+
+EXEC="java -jar $ESRLPATH/build/libs/easysrl-$VERSION-capsule.jar --model $ESRLPATH/model --daemonize $*"
+if [ "x$PIDFILE" == "x" ]; then
+	$EXEC
+else
+	if [ "x$LOGFILE" == "x" ]; then
+		nohup $EXEC &
+	else
+		nohup $EXEC > $LOGFILE &
+	fi
+	PID="$!"
+	echo "$PID" > $PIDFILE
+fi
