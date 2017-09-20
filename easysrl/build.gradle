@@ -18,6 +18,7 @@ jar {
 dependencies {
     compile 'com.google.guava:guava:19.0'
     compile fileTree(dir: 'lib/', include: ['*.jar'])
+    compile fileTree(dir: 'xlib/', include: ['*.jar'])
 }
 
 sourceSets {
@@ -31,6 +32,43 @@ sourceSets {
         }
     }
 }
+/* TODO: get this working
+task downloadPrivateJar {
+    ext.bdir = new File("${rootDir}/easysrl/xlib")
+    ext.token = project.properties['githubToken']
+    ext.filenames = [
+            "mservice-0.1-SNAPSHOT.jar"
+    ]
+    description "Untar models"
+
+    inputs.files(filenames.collect { "${bdir}/$it" })
+    //outputs.files(filenames.collect {
+    //    "${bdir}" + "/" + "$it"
+    //})
+
+    doFirst {
+        bdir.mkdirs()
+    }
+
+    doLast {
+        tasks.create('do_downloads', Exec) {
+            workingDir = "${bdir}"
+            // This does not do the download - need to read json for that
+            commandLine = [
+                'curl', '-vLJO', '-H',
+                "Authorization: token ${token}", '-H', 'Accept: application/vnd.github.v3+json',
+                "https://api.github.com/repos/marbles-ai/mservice-java/releases/tags/v0.1-SNAPSHOT"
+            ]
+            if (gradle.startParameter.logLevel != LogLevel.DEBUG
+                    && gradle.startParameter.logLevel != LogLevel.INFO) {
+                // Trash output
+                standardOutput = new ByteArrayOutputStream()
+            }
+        }.execute()
+    }
+}
+build.dependsOn(downloadPrivateJar)
+*/
 
 // Ensure our task is called after build
 build.finalizedBy(standaloneJar)
