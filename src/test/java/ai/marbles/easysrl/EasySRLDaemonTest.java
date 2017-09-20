@@ -23,7 +23,7 @@ public class EasySRLDaemonTest {
         try {
 
             System.out.println("Starting EasySRLDaemonTest...");
-            CcgServiceHandler basesvc = new CcgServiceHandler("./easysrl/model/text");
+            CcgServiceHandler basesvc = new CcgServiceHandler("./easysrl/model");
             basesvc.init();
             server = new ServiceAcceptor(port, new CcgServiceHandler.SimpleParser(basesvc));
             server.start();
