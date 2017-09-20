@@ -1,4 +1,4 @@
-def grpcVersion = '1.6.1'
+def grpcVersion = '1.1.2'
 apply plugin: 'com.google.protobuf'
 
 allprojects {
@@ -49,6 +49,44 @@ test {
     // Make model path accessible to all sub projects
     workingDir './'
 }
+
+task untar {
+    ext.bdir = new File("${rootDir}/easysrl")
+    ext.tgz_filenames = [
+        "model.tar.gz",
+        "model_question.tar.gz",
+    ]
+    description "Untar models"
+
+    inputs.files(tgz_filenames.collect { "${bdir}/$it" })
+    outputs.files(tgz_filenames.collect {
+        "${bdir}" + "/" + "$it".replaceFirst(/\.tar\.gz/, "")
+    })
+
+    doLast {
+        tasks.create('do_untar_model', Exec) {
+            workingDir = "${bdir}"
+            commandLine = ['tar', '-zxf', "model.tar.gz"]
+            if (gradle.startParameter.logLevel != LogLevel.DEBUG
+                    && gradle.startParameter.logLevel != LogLevel.INFO) {
+                // Trash output
+                standardOutput = new ByteArrayOutputStream()
+            }
+        }.execute()
+        tasks.create('do_untar_model_questions', Exec) {
+            workingDir = "${bdir}"
+            commandLine = ['tar', '-zxf', "model_questions.tar.gz"]
+            if (gradle.startParameter.logLevel != LogLevel.DEBUG
+                    && gradle.startParameter.logLevel != LogLevel.INFO) {
+                // Trash output
+                standardOutput = new ByteArrayOutputStream()
+            }
+        }.execute()
+    }
+}
+
+// Ensure our task is called before build
+build.dependsOn(untar)
 
 buildscript {
     repositories {
